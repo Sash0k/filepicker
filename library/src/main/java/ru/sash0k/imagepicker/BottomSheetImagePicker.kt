@@ -28,7 +28,6 @@ import androidx.loader.content.Loader
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import ru.sash0k.imagepicker.AutofitLayoutManager
 import ru.sash0k.imagepicker.databinding.ImagepickerBinding
 import java.io.File
 import java.text.SimpleDateFormat
@@ -75,6 +74,8 @@ class BottomSheetImagePicker internal constructor() :
             ::selectionCountChanged
         )
     }
+
+    override fun getTheme(): Int = R.style.RoundedBottomSheetDialog
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
