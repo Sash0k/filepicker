@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">imagepicker</string>
+    <string name="demo_fragment_label">Image Picker</string>
+    <string name="open">Open</string>
+</resources>
