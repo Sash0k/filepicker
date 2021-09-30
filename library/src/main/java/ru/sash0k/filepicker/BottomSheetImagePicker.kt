@@ -15,6 +15,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.DimenRes
 import androidx.annotation.PluralsRes
@@ -25,17 +28,16 @@ import androidx.fragment.app.FragmentManager
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import ru.sash0k.filepicker.databinding.ImagepickerBinding
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 class BottomSheetImagePicker internal constructor() :
     BottomSheetDialogFragment(), LoaderManager.LoaderCallbacks<Cursor> {
-    private lateinit var binding: ImagepickerBinding
 
     private var currentPhotoUri: Uri? = null
 
@@ -64,6 +66,8 @@ class BottomSheetImagePicker internal constructor() :
 
     private var onImagesSelectedListener: OnImagesSelectedListener? = null
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
+    private lateinit var progressbar: ProgressBar
+    private lateinit var emptyView: TextView
 
     private val adapter by lazy {
         ImageTileAdapter(
@@ -98,48 +102,58 @@ class BottomSheetImagePicker internal constructor() :
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = ImagepickerBinding.inflate(inflater, container, false).also {
+        val view = inflater.inflate(R.layout.imagepicker, container, false).also {
             (parentFragment as? OnImagesSelectedListener)?.let { onImagesSelectedListener = it }
         }
-        return binding.root
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.tvHeader.setOnClickListener {
+        progressbar = view.findViewById(R.id.progress)
+        emptyView = view.findViewById(R.id.tvEmpty)
+
+        val btnCamera = view.findViewById<ImageButton>(R.id.btnCamera)
+        val btnGallery = view.findViewById<ImageButton>(R.id.btnGallery)
+        val btnDone = view.findViewById<ImageButton>(R.id.btnDone)
+        val btnClearSelection = view.findViewById<ImageButton>(R.id.btnClearSelection)
+        val recycler = view.findViewById<RecyclerView>(R.id.recycler)
+        val tvHeader = view.findViewById<TextView>(R.id.tvHeader)
+
+        tvHeader.setOnClickListener {
             if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             } else {
-                binding.recycler.smoothScrollToPosition(0)
+                recycler.smoothScrollToPosition(0)
             }
         }
         if (showGalleryButton) {
-            binding.btnGallery.isVisible = true
-            binding.btnGallery.setOnClickListener { launchGallery() }
+            btnGallery.isVisible = true
+            btnGallery.setOnClickListener { launchGallery() }
         }
         if (showCameraButton) {
-            binding.btnCamera.isVisible = true
-            binding.btnCamera.setOnClickListener { launchCamera() }
+            btnCamera.isVisible = true
+            btnCamera.setOnClickListener { launchCamera() }
         }
-        binding.tvHeader.setText(resTitleSingle)
-        binding.tvEmpty.setText(loadingRes)
+        tvHeader.setText(resTitleSingle)
+        emptyView.setText(loadingRes)
 
         if (isMultiSelect) {
-            binding.btnCamera.isVisible = false
-            binding.btnGallery.isVisible = false
-            binding.btnDone.isVisible = true
-            binding.btnDone.setOnClickListener {
+            btnCamera.isVisible = false
+            btnGallery.isVisible = false
+            btnDone.isVisible = true
+            btnDone.setOnClickListener {
                 onImagesSelectedListener?.onImagesSelected(adapter.getSelectedImages(), requestTag)
                 dismissAllowingStateLoss()
             }
-            binding.btnClearSelection.isVisible = true
-            binding.btnClearSelection.setOnClickListener { adapter.clear() }
+            btnClearSelection.isVisible = true
+            btnClearSelection.setOnClickListener { adapter.clear() }
         }
 
-        binding.recycler.layoutManager = AutofitLayoutManager(requireContext(), columnSizeRes)
-        (binding.recycler.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
-        binding.recycler.adapter = adapter
+        recycler.layoutManager = AutofitLayoutManager(requireContext(), columnSizeRes)
+        (recycler.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
+        recycler.adapter = adapter
 
         val oldSelection = savedInstanceState?.getIntArray(STATE_SELECTION)
         if (oldSelection != null) {
@@ -385,8 +399,8 @@ class BottomSheetImagePicker internal constructor() :
     }
 
     override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
-        binding.progress.isVisible = false
-        binding.tvEmpty.setText(emptyRes)
+        progressbar.isVisible = false
+        emptyView.setText(emptyRes)
         data ?: return
 
         val columnIndex = data.getColumnIndex(MediaStore.Images.Media._ID)
@@ -401,7 +415,7 @@ class BottomSheetImagePicker internal constructor() :
         }
         data.moveToFirst()
         adapter.imageList = items
-        binding.tvEmpty.isVisible = items.size == 0
+        emptyView.isVisible = items.size == 0
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {
