@@ -91,11 +91,6 @@ class BottomSheetImagePicker internal constructor() :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         loadArguments()
-        if (requireContext().hasReadStoragePermission) {
-            LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this)
-        } else {
-            requestReadStoragePermission(REQUEST_PERMISSION_READ_STORAGE)
-        }
         if (savedInstanceState != null) {
             currentPhotoUri = savedInstanceState.getParcelable(STATE_CURRENT_URI)
         }
@@ -113,6 +108,12 @@ class BottomSheetImagePicker internal constructor() :
 
         progressbar = view.findViewById(R.id.progress)
         emptyView = view.findViewById(R.id.tvEmpty)
+
+        if (requireContext().hasReadStoragePermission) {
+            LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this)
+        } else {
+            requestReadStoragePermission(REQUEST_PERMISSION_READ_STORAGE)
+        }
 
         val btnCamera = view.findViewById<ImageButton>(R.id.btnCamera)
         val btnGallery = view.findViewById<ImageButton>(R.id.btnGallery)
