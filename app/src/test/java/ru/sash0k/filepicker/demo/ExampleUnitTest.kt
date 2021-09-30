@@ -1,4 +1,4 @@
-package ru.sash0k.imagepicker.demo
+package ru.sash0k.filepicker.demo
 
 import org.junit.Test
 

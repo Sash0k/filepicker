@@ -1,4 +1,4 @@
-package ru.sash0k.imagepicker.demo
+package ru.sash0k.filepicker.demo
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

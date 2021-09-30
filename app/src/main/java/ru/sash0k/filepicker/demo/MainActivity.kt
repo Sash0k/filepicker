@@ -1,4 +1,4 @@
-package ru.sash0k.imagepicker.demo
+package ru.sash0k.filepicker.demo
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -6,7 +6,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import ru.sash0k.imagepicker.demo.databinding.ActivityMainBinding
+import ru.sash0k.filepicker.demo.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 

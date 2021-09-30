@@ -1,4 +1,4 @@
-package ru.sash0k.imagepicker.demo
+package ru.sash0k.filepicker.demo
 
 import android.net.Uri
 import android.os.Bundle
@@ -7,9 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
-import ru.sash0k.imagepicker.BottomSheetImagePicker
-import ru.sash0k.imagepicker.ButtonType
-import ru.sash0k.imagepicker.demo.databinding.FragmentDemoBinding
+import ru.sash0k.filepicker.BottomSheetImagePicker
+import ru.sash0k.filepicker.ButtonType
+import ru.sash0k.filepicker.demo.databinding.FragmentDemoBinding
 
 class DemoFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedListener {
 

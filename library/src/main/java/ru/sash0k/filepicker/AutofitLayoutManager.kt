@@ -1,4 +1,4 @@
-package ru.sash0k.imagepicker
+package ru.sash0k.filepicker
 
 import android.content.Context
 import android.content.res.Resources

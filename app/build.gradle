@@ -8,7 +8,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "ru.sash0k.imagepicker.demo"
+        applicationId "ru.sash0k.filepicker.demo"
         minSdkVersion 21
         targetSdkVersion 31
         versionCode 1

@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/FirstFragment"
-        android:name="ru.sash0k.imagepicker.demo.DemoFragment"
+        android:name="ru.sash0k.filepicker.demo.DemoFragment"
         android:label="@string/demo_fragment_label"
         tools:layout="@layout/fragment_demo">
     </fragment>

@@ -1,4 +1,4 @@
-package ru.sash0k.imagepicker
+package ru.sash0k.filepicker
 
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
@@ -28,7 +28,7 @@ import androidx.loader.content.Loader
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import ru.sash0k.imagepicker.databinding.ImagepickerBinding
+import ru.sash0k.filepicker.databinding.ImagepickerBinding
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
