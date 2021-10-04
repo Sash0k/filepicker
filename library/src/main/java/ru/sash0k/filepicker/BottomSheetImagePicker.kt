@@ -52,6 +52,8 @@ class BottomSheetImagePicker internal constructor() :
     private var showCameraButton = true
     private var showGalleryTile = false
     private var showGalleryButton = true
+    private var showStorageButton = false
+    private var storageMimetypes = emptyArray<String>()
 
     @StringRes
     private var resTitleSingle = R.string.imagePickerSingle
@@ -117,6 +119,7 @@ class BottomSheetImagePicker internal constructor() :
 
         val btnCamera = view.findViewById<ImageButton>(R.id.btnCamera)
         val btnGallery = view.findViewById<ImageButton>(R.id.btnGallery)
+        val btnStorage = view.findViewById<ImageButton>(R.id.btnStorage)
         val btnDone = view.findViewById<ImageButton>(R.id.btnDone)
         val btnClearSelection = view.findViewById<ImageButton>(R.id.btnClearSelection)
         val recycler = view.findViewById<RecyclerView>(R.id.recycler)
@@ -132,6 +135,10 @@ class BottomSheetImagePicker internal constructor() :
         if (showGalleryButton) {
             btnGallery.isVisible = true
             btnGallery.setOnClickListener { launchGallery() }
+        }
+        if (showStorageButton) {
+            btnStorage.isVisible = true
+            btnStorage.setOnClickListener { launchStorage(storageMimetypes) }
         }
         if (showCameraButton) {
             btnCamera.isVisible = true
@@ -262,6 +269,15 @@ class BottomSheetImagePicker internal constructor() :
         }
     }
 
+    private fun launchStorage(mimeTypes: Array<String>) {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            type = if (mimeTypes.size == 1) mimeTypes[0] else "*/*"
+            if (mimeTypes.size > 1) this.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
+            addCategory(Intent.CATEGORY_OPENABLE)
+        }
+        startActivityForResult(intent, REQUEST_STORAGE)
+    }
+
     private fun launchGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(intent, REQUEST_GALLERY)
@@ -344,7 +360,8 @@ class BottomSheetImagePicker internal constructor() :
                 dismissAllowingStateLoss()
                 return
             }
-            REQUEST_GALLERY -> {
+            REQUEST_GALLERY,
+            REQUEST_STORAGE -> {
                 data?.data?.let { uri ->
                     onImagesSelectedListener?.onImagesSelected(listOf(uri), requestTag)
                 }
@@ -377,6 +394,8 @@ class BottomSheetImagePicker internal constructor() :
         showCameraButton = args.getBoolean(KEY_SHOW_CAMERA_BTN, showCameraButton)
         showGalleryTile = args.getBoolean(KEY_SHOW_GALLERY_TILE, showGalleryTile)
         showGalleryButton = args.getBoolean(KEY_SHOW_GALLERY_BTN, showGalleryButton)
+        showStorageButton = args.getBoolean(KEY_SHOW_STORAGE_BTN, showStorageButton)
+        storageMimetypes = args.getStringArray(KEY_STORAGE_MIMETYPES) ?: storageMimetypes
         columnSizeRes = args.getInt(KEY_COLUMN_SIZE_RES, columnSizeRes)
         requestTag = args.getString(KEY_REQUEST_TAG, requestTag)
 
@@ -438,6 +457,7 @@ class BottomSheetImagePicker internal constructor() :
 
         private const val REQUEST_PHOTO = 0x3000
         private const val REQUEST_GALLERY = 0x3001
+        private const val REQUEST_STORAGE = 0x3002
 
         private const val KEY_PROVIDER = "provider"
         private const val KEY_REQUEST_TAG = "requestTag"
@@ -449,6 +469,8 @@ class BottomSheetImagePicker internal constructor() :
         private const val KEY_SHOW_CAMERA_BTN = "showCameraButton"
         private const val KEY_SHOW_GALLERY_TILE = "showGalleryTile"
         private const val KEY_SHOW_GALLERY_BTN = "showGalleryButton"
+        private const val KEY_SHOW_STORAGE_BTN = "showStorageButton"
+        private const val KEY_STORAGE_MIMETYPES = "storageMimetypes"
         private const val KEY_COLUMN_SIZE_RES = "columnCount"
 
         private const val KEY_TITLE_RES_SINGLE = "titleResSingle"
@@ -499,6 +521,14 @@ class BottomSheetImagePicker internal constructor() :
         fun galleryButton(type: ButtonType) = args.run {
             putBoolean(KEY_SHOW_GALLERY_BTN, type == ButtonType.Button)
             putBoolean(KEY_SHOW_GALLERY_TILE, type == ButtonType.Tile)
+            this@Builder
+        }
+
+        fun storageButton(mimeTypes: Array<String>) = args.run {
+            if (mimeTypes.isNotEmpty()) {
+                putBoolean(KEY_SHOW_STORAGE_BTN, true)
+                putStringArray(KEY_STORAGE_MIMETYPES, mimeTypes)
+            }
             this@Builder
         }
 
