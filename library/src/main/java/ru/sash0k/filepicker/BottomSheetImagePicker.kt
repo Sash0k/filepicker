@@ -252,22 +252,13 @@ class BottomSheetImagePicker internal constructor() :
                 if (grantResults.isPermissionGranted)
                     LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this)
                 else dismissAllowingStateLoss()
-            REQUEST_PERMISSION_WRITE_STORAGE ->
-                if (grantResults.isPermissionGranted)
-                    launchCamera()
-                else
-                    Toast.makeText(
-                        requireContext(),
-                        R.string.toastImagePickerNoWritePermission,
-                        Toast.LENGTH_LONG
-                    ).show()
             REQUEST_PERMISSION_CAMERA ->
                 if (grantResults.isPermissionGranted)
                     launchCamera()
                 else
                     Toast.makeText(
                             requireContext(),
-                            R.string.toastImagePickerNoWritePermission,
+                            R.string.toastImagePickerNoCameraPermission,
                             Toast.LENGTH_LONG
                     ).show()
         }
@@ -346,7 +337,6 @@ class BottomSheetImagePicker internal constructor() :
         private const val LOADER_ID = 0x1337
 
         private const val REQUEST_PERMISSION_READ_STORAGE = 0x2000
-        private const val REQUEST_PERMISSION_WRITE_STORAGE = 0x2001
         private const val REQUEST_PERMISSION_CAMERA = 0x2002
 
         private const val KEY_PROVIDER = "provider"
