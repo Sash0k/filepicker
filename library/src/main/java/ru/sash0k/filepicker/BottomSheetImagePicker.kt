@@ -1,17 +1,12 @@
 package ru.sash0k.filepicker
 
-import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.content.*
-import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,12 +14,15 @@ import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments
+import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.annotation.DimenRes
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
@@ -33,7 +31,6 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.io.File
-import java.text.SimpleDateFormat
 import java.util.*
 
 class BottomSheetImagePicker internal constructor() :
@@ -138,7 +135,7 @@ class BottomSheetImagePicker internal constructor() :
         }
         if (showStorageButton) {
             btnStorage.isVisible = true
-            btnStorage.setOnClickListener { launchStorage(storageMimetypes) }
+            btnStorage.setOnClickListener { actionOpenDocuments.launch(storageMimetypes) }
         }
         if (showCameraButton) {
             btnCamera.isVisible = true
@@ -225,93 +222,43 @@ class BottomSheetImagePicker internal constructor() :
 //        btnClearSelection.animate().alpha(if (btnClearSelection.isEnabled) 1f else .2f)
     }
 
-    private fun launchCamera() {
-        if (!requireContext().hasWriteStoragePermission) {
-            requestWriteStoragePermission(REQUEST_PERMISSION_WRITE_STORAGE)
-            return
+    private val actionOpenDocuments = registerForActivityResult(OpenMultipleDocuments()) { uris ->
+        onImagesSelectedListener?.onImagesSelected(uris, requestTag)
+        dismissAllowingStateLoss()
+    }
+
+    private val actionTakePicture = registerForActivityResult(TakePicture()) { success ->
+        if (success) currentPhotoUri?.let { uri ->  onImagesSelectedListener?.onImagesSelected(listOf(uri), requestTag) }
+        dismissAllowingStateLoss()
+    }
+
+    private fun getTmpFileUri(): Uri {
+        val context = requireContext()
+        val tmpFile = File.createTempFile("filepicker", ".png", context.cacheDir).apply {
+            createNewFile()
+            deleteOnExit()
         }
 
-        if(!requireContext().hasCameraPermission){
+        return FileProvider.getUriForFile(context, providerAuthority, tmpFile)
+    }
+
+    private fun launchCamera() {
+        if (!requireContext().hasCameraPermission) {
             requestCameraPermission(REQUEST_PERMISSION_CAMERA)
             return
         }
 
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        intent.putExtra("android.intent.extra.quickCapture", true)
-        if (intent.resolveActivity(requireContext().packageManager) == null) return
-        val photoUri = try {
-            getPhotoUri()
-        } catch (e: Exception) {
-            if (BuildConfig.DEBUG) Log.w(TAG, "could not prepare image file", e)
-            return
+        lifecycleScope.launchWhenStarted {
+            getTmpFileUri().let { uri ->
+                currentPhotoUri = uri
+                actionTakePicture.launch(uri)
+            }
         }
-        // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoUri = photoUri
-
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
-        requireContext().packageManager.queryIntentActivities(
-            intent,
-            PackageManager.MATCH_DEFAULT_ONLY
-        ).forEach { info ->
-            val packageName = info.activityInfo.packageName
-            requireContext().grantUriPermission(
-                packageName,
-                photoUri,
-                Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-        }
-        try {
-            startActivityForResult(intent, REQUEST_PHOTO)
-        } catch (e: ActivityNotFoundException) {
-            e.printStackTrace()
-        }
-    }
-
-    private fun launchStorage(mimeTypes: Array<String>) {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            type = if (mimeTypes.size == 1) mimeTypes[0] else "*/*"
-            if (mimeTypes.size > 1) this.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
-            addCategory(Intent.CATEGORY_OPENABLE)
-        }
-        startActivityForResult(intent, REQUEST_STORAGE)
     }
 
     private fun launchGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(intent, REQUEST_GALLERY)
-    }
-
-    private fun getPhotoUri(): Uri? =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val resolver = requireContext().contentResolver
-            val contentVals = ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, getImageFileName() + ".jpg")
-                put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
-
-                //put images in DCIM folder
-                put(MediaStore.MediaColumns.RELATIVE_PATH, "DCIM/")
-            }
-            resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentVals)
-        } else {
-            val imageFileName = getImageFileName()
-            val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
-            storageDir.mkdirs()
-            val image = File.createTempFile(imageFileName + "_", ".jpg", storageDir)
-
-            //no need to create empty file; camera app will create it on success
-            val success = image.delete()
-            if (!success && BuildConfig.DEBUG) {
-                Log.d(TAG, "Failed to delete temp file: $image")
-            }
-            FileProvider.getUriForFile(requireContext(), providerAuthority, image)
-        }
-
-    @SuppressLint("SimpleDateFormat")
-    private fun getImageFileName(): String {
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().time)
-        return "IMG_$timeStamp"
     }
 
     override fun onRequestPermissionsResult(
@@ -352,16 +299,7 @@ class BottomSheetImagePicker internal constructor() :
             return
         }
         when (requestCode) {
-            REQUEST_PHOTO -> {
-                notifyGallery()
-                currentPhotoUri?.let { uri ->
-                    onImagesSelectedListener?.onImagesSelected(listOf(uri), requestTag)
-                }
-                dismissAllowingStateLoss()
-                return
-            }
-            REQUEST_GALLERY,
-            REQUEST_STORAGE -> {
+            REQUEST_GALLERY -> {
                 data?.data?.let { uri ->
                     onImagesSelectedListener?.onImagesSelected(listOf(uri), requestTag)
                 }
@@ -376,12 +314,6 @@ class BottomSheetImagePicker internal constructor() :
         super.onSaveInstanceState(outState)
         outState.putParcelable(STATE_CURRENT_URI, currentPhotoUri)
         outState.putIntArray(STATE_SELECTION, adapter.selection.toIntArray())
-    }
-
-    private fun notifyGallery() {
-        context?.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).apply {
-            data = currentPhotoUri
-        })
     }
 
     private fun loadArguments() {
@@ -455,9 +387,7 @@ class BottomSheetImagePicker internal constructor() :
         private const val REQUEST_PERMISSION_WRITE_STORAGE = 0x2001
         private const val REQUEST_PERMISSION_CAMERA = 0x2002
 
-        private const val REQUEST_PHOTO = 0x3000
         private const val REQUEST_GALLERY = 0x3001
-        private const val REQUEST_STORAGE = 0x3002
 
         private const val KEY_PROVIDER = "provider"
         private const val KEY_REQUEST_TAG = "requestTag"
