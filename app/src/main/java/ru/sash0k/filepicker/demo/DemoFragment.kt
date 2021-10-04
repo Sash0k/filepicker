@@ -29,8 +29,7 @@ class DemoFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedListener
     private fun pickFile(tag: String) {
         BottomSheetImagePicker.Builder("${BuildConfig.APPLICATION_ID}.provider")
             .cameraButton(ButtonType.Tile)
-            .galleryButton(ButtonType.Button)
-            .storageButton(mimeTypes = arrayOf("application/pdf", "text/plain"))
+            .storageButton(mimeTypes = arrayOf("image/*", "application/pdf", "text/plain"))
             .singleSelectTitle(R.string.imagePickerSingle)
             .peekHeight(R.dimen.peekHeight)
             .requestTag(tag)

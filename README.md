@@ -11,8 +11,8 @@ Based on [BottomSheet Image Picker](https://github.com/kroegerama/bottomsheet-im
 
 1. fix multiple mode
 2. scoped storage support (Android 10+)
-3. reimplement photos with Camera2 API
-~~4. add more file formats like pdf, txt to upload~~
+3. ~~reimplement with ActivityResultContracts~~
+4. ~~add more file formats like pdf, txt to upload~~
 
 ## How to Use
 

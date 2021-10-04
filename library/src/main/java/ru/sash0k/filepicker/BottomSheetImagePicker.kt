@@ -47,8 +47,6 @@ class BottomSheetImagePicker internal constructor() :
 
     private var showCameraTile = false
     private var showCameraButton = true
-    private var showGalleryTile = false
-    private var showGalleryButton = true
     private var showStorageButton = false
     private var storageMimetypes = emptyArray<String>()
 
@@ -72,7 +70,6 @@ class BottomSheetImagePicker internal constructor() :
         ImageTileAdapter(
             isMultiSelect,
             showCameraTile,
-            showGalleryTile,
             ::tileClick,
             ::selectionCountChanged
         )
@@ -115,7 +112,6 @@ class BottomSheetImagePicker internal constructor() :
         }
 
         val btnCamera = view.findViewById<ImageButton>(R.id.btnCamera)
-        val btnGallery = view.findViewById<ImageButton>(R.id.btnGallery)
         val btnStorage = view.findViewById<ImageButton>(R.id.btnStorage)
         val btnDone = view.findViewById<ImageButton>(R.id.btnDone)
         val btnClearSelection = view.findViewById<ImageButton>(R.id.btnClearSelection)
@@ -128,10 +124,6 @@ class BottomSheetImagePicker internal constructor() :
             } else {
                 recycler.smoothScrollToPosition(0)
             }
-        }
-        if (showGalleryButton) {
-            btnGallery.isVisible = true
-            btnGallery.setOnClickListener { launchGallery() }
         }
         if (showStorageButton) {
             btnStorage.isVisible = true
@@ -146,7 +138,6 @@ class BottomSheetImagePicker internal constructor() :
 
         if (isMultiSelect) {
             btnCamera.isVisible = false
-            btnGallery.isVisible = false
             btnDone.isVisible = true
             btnDone.setOnClickListener {
                 onImagesSelectedListener?.onImagesSelected(adapter.getSelectedImages(), requestTag)
@@ -193,12 +184,7 @@ class BottomSheetImagePicker internal constructor() :
 
     private fun tileClick(tile: ClickedTile) {
         when (tile) {
-            is ClickedTile.CameraTile -> {
-                launchCamera()
-            }
-            is ClickedTile.GalleryTile -> {
-                launchGallery()
-            }
+            is ClickedTile.CameraTile -> { launchCamera() }
             is ClickedTile.ImageTile -> {
                 onImagesSelectedListener?.onImagesSelected(listOf(tile.uri), requestTag)
                 dismissAllowingStateLoss()
@@ -256,11 +242,6 @@ class BottomSheetImagePicker internal constructor() :
         }
     }
 
-    private fun launchGallery() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, REQUEST_GALLERY)
-    }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -293,23 +274,6 @@ class BottomSheetImagePicker internal constructor() :
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode != RESULT_OK) {
-            super.onActivityResult(requestCode, resultCode, data)
-            return
-        }
-        when (requestCode) {
-            REQUEST_GALLERY -> {
-                data?.data?.let { uri ->
-                    onImagesSelectedListener?.onImagesSelected(listOf(uri), requestTag)
-                }
-                dismissAllowingStateLoss()
-                return
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putParcelable(STATE_CURRENT_URI, currentPhotoUri)
@@ -324,8 +288,6 @@ class BottomSheetImagePicker internal constructor() :
         providerAuthority = args.getString(KEY_PROVIDER, this::class.java.canonicalName)
         showCameraTile = args.getBoolean(KEY_SHOW_CAMERA_TILE, showCameraTile)
         showCameraButton = args.getBoolean(KEY_SHOW_CAMERA_BTN, showCameraButton)
-        showGalleryTile = args.getBoolean(KEY_SHOW_GALLERY_TILE, showGalleryTile)
-        showGalleryButton = args.getBoolean(KEY_SHOW_GALLERY_BTN, showGalleryButton)
         showStorageButton = args.getBoolean(KEY_SHOW_STORAGE_BTN, showStorageButton)
         storageMimetypes = args.getStringArray(KEY_STORAGE_MIMETYPES) ?: storageMimetypes
         columnSizeRes = args.getInt(KEY_COLUMN_SIZE_RES, columnSizeRes)
@@ -387,8 +349,6 @@ class BottomSheetImagePicker internal constructor() :
         private const val REQUEST_PERMISSION_WRITE_STORAGE = 0x2001
         private const val REQUEST_PERMISSION_CAMERA = 0x2002
 
-        private const val REQUEST_GALLERY = 0x3001
-
         private const val KEY_PROVIDER = "provider"
         private const val KEY_REQUEST_TAG = "requestTag"
 
@@ -397,8 +357,6 @@ class BottomSheetImagePicker internal constructor() :
         private const val KEY_MULTI_SELECT_MAX = "multiSelectMax"
         private const val KEY_SHOW_CAMERA_TILE = "showCameraTile"
         private const val KEY_SHOW_CAMERA_BTN = "showCameraButton"
-        private const val KEY_SHOW_GALLERY_TILE = "showGalleryTile"
-        private const val KEY_SHOW_GALLERY_BTN = "showGalleryButton"
         private const val KEY_SHOW_STORAGE_BTN = "showStorageButton"
         private const val KEY_STORAGE_MIMETYPES = "storageMimetypes"
         private const val KEY_COLUMN_SIZE_RES = "columnCount"
@@ -445,12 +403,6 @@ class BottomSheetImagePicker internal constructor() :
         fun cameraButton(type: ButtonType) = args.run {
             putBoolean(KEY_SHOW_CAMERA_BTN, type != ButtonType.None)
             putBoolean(KEY_SHOW_CAMERA_TILE, type == ButtonType.Tile)
-            this@Builder
-        }
-
-        fun galleryButton(type: ButtonType) = args.run {
-            putBoolean(KEY_SHOW_GALLERY_BTN, type == ButtonType.Button)
-            putBoolean(KEY_SHOW_GALLERY_TILE, type == ButtonType.Tile)
             this@Builder
         }
 

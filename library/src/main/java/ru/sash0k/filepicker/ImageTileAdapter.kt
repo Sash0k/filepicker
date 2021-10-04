@@ -12,7 +12,6 @@ import com.bumptech.glide.Glide
 internal class ImageTileAdapter(
     private val isMultiSelect: Boolean,
     private val showCameraTile: Boolean,
-    private val showGalleryTile: Boolean,
     private val clickListener: (ClickedTile) -> Unit,
     private val selectionCountChanged: (Int) -> Unit
 ) : RecyclerView.Adapter<VHImageTileBase>() {
@@ -42,11 +41,6 @@ internal class ImageTileAdapter(
         isMultiSelect -> VT_IMAGE
         position == 0 -> when {
             showCameraTile -> VT_CAMERA
-            showGalleryTile -> VT_GALLERY
-            else -> VT_IMAGE
-        }
-        position == 1 -> when {
-            showCameraTile && showGalleryTile -> VT_GALLERY
             else -> VT_IMAGE
         }
         else -> VT_IMAGE
@@ -56,7 +50,6 @@ internal class ImageTileAdapter(
         LayoutInflater.from(parent.context).inflate(if (viewType == VT_IMAGE) R.layout.tile_image else R.layout.tile_special, parent, false).let { view ->
             when (viewType) {
                 VT_IMAGE -> VHImageTileBase.VHImageTile(view)
-                VT_GALLERY -> VHImageTileBase.VHGalleryTile(view) { clickListener.invoke(ClickedTile.GalleryTile) }
                 VT_CAMERA -> VHImageTileBase.VHCameraTile(view) { clickListener.invoke(ClickedTile.CameraTile) }
                 else -> throw IllegalStateException("viewType $viewType not allowed")
             }
@@ -64,7 +57,7 @@ internal class ImageTileAdapter(
 
     override fun getItemCount(): Int =
         if (isMultiSelect) imageList.size
-        else imageList.size + showCameraTile.toInt() + showGalleryTile.toInt()
+        else imageList.size + showCameraTile.toInt()
 
     override fun onBindViewHolder(holder: VHImageTileBase, position: Int) {
         val pos = getCorrectPosition(position)
@@ -93,7 +86,7 @@ internal class ImageTileAdapter(
 
     private fun getCorrectPosition(position: Int): Int =
         if (isMultiSelect) position
-        else position - showGalleryTile.toInt() - showCameraTile.toInt()
+        else position - showCameraTile.toInt()
 
     private fun Boolean.toInt() = if (this) 1 else 0
 
@@ -106,7 +99,6 @@ internal class ImageTileAdapter(
 
 sealed class ClickedTile {
     object CameraTile : ClickedTile()
-    object GalleryTile : ClickedTile()
     data class ImageTile(val uri: Uri) : ClickedTile()
 }
 
@@ -132,13 +124,6 @@ sealed class VHImageTileBase(
             this.clickListener = clickListener
             ivSelect.isVisible = selected
             Glide.with(ivImage).load(uri).into(ivImage)
-        }
-    }
-
-    class VHGalleryTile(view: View, clickListener: () -> Unit) : VHImageTileBase(view) {
-        init {
-            view.setOnClickListener { clickListener.invoke() }
-            view.findViewById<ImageView>(R.id.ivIcon).setImageResource(R.drawable.ic_baseline_image_24)
         }
     }
 

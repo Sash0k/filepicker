@@ -61,16 +61,6 @@
             tools:visibility="visible" />
 
         <ImageButton
-            android:id="@+id/btnGallery"
-            android:layout_width="?android:attr/listPreferredItemHeightSmall"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:background="?selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_baseline_image_24"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
-        <ImageButton
             android:id="@+id/btnStorage"
             android:layout_width="?android:attr/listPreferredItemHeightSmall"
             android:layout_height="match_parent"
