@@ -114,7 +114,7 @@
             android:paddingEnd="16dp"
             android:paddingBottom="32dp"
             android:text="@string/imagePickerLoading"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
     </FrameLayout>
 
 </LinearLayout>
