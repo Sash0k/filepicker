@@ -370,14 +370,16 @@ class BottomSheetImagePicker internal constructor() :
             this@Builder
         }
 
-        fun cameraButton(type: ButtonType) = args.run {
-            putBoolean(KEY_SHOW_CAMERA_BTN, type != ButtonType.None)
-            putBoolean(KEY_SHOW_CAMERA_TILE, type == ButtonType.Tile)
+        fun cameraButton(enabled: Boolean) = args.run {
+            putBoolean(KEY_SHOW_CAMERA_BTN, enabled)
+            putBoolean(KEY_SHOW_CAMERA_TILE, enabled)
             this@Builder
         }
 
         fun storageButton(mimeTypes: Array<String>) = args.run {
-            if (mimeTypes.isNotEmpty()) {
+            if (mimeTypes.isEmpty()) {
+                putBoolean(KEY_SHOW_STORAGE_BTN, false)
+            } else {
                 putBoolean(KEY_SHOW_STORAGE_BTN, true)
                 putStringArray(KEY_STORAGE_MIMETYPES, mimeTypes)
             }
@@ -420,8 +422,4 @@ class BottomSheetImagePicker internal constructor() :
         fun show(fm: FragmentManager, tag: String? = null) = build().show(fm, tag)
 
     }
-}
-
-enum class ButtonType {
-    None, Button, Tile
 }

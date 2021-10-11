@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import ru.sash0k.filepicker.BottomSheetImagePicker
-import ru.sash0k.filepicker.ButtonType
 import ru.sash0k.filepicker.demo.databinding.FragmentDemoBinding
 
 class DemoFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedListener {
@@ -29,7 +28,7 @@ class DemoFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedListener
 
     private fun pickFile(tag: String) {
         BottomSheetImagePicker.Builder("${BuildConfig.APPLICATION_ID}.provider")
-            .cameraButton(ButtonType.Tile)
+            .cameraButton(enabled = true)
             .storageButton(mimeTypes = arrayOf("image/*", "application/pdf", "text/plain"))
             .singleSelectTitle(R.string.imagePickerSingle)
             .peekHeight(R.dimen.peekHeight)
