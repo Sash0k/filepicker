@@ -3,6 +3,7 @@ package ru.sash0k.filepicker
 import android.Manifest
 import android.app.Dialog
 import android.content.*
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
@@ -46,7 +47,7 @@ class BottomSheetImagePicker internal constructor() :
     private var requestTag = ""
 
     private var showCameraTile = false
-    private var showCameraButton = true
+    private var showCameraButton = false
     private var showStorageButton = false
     private var storageMimetypes = emptyArray<String>()
 
@@ -257,12 +258,14 @@ class BottomSheetImagePicker internal constructor() :
 
     private fun loadArguments() {
         val args = arguments ?: return
+        val hasCamera = activity?.packageManager?.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY) ?: false
+
         //isMultiSelect = args.getBoolean(KEY_MULTI_SELECT, isMultiSelect)
         multiSelectMin = args.getInt(KEY_MULTI_SELECT_MIN, multiSelectMin)
         multiSelectMax = args.getInt(KEY_MULTI_SELECT_MAX, multiSelectMax)
         providerAuthority = args.getString(KEY_PROVIDER, this::class.java.canonicalName)
-        showCameraTile = args.getBoolean(KEY_SHOW_CAMERA_TILE, showCameraTile)
-        showCameraButton = args.getBoolean(KEY_SHOW_CAMERA_BTN, showCameraButton)
+        showCameraTile = hasCamera && args.getBoolean(KEY_SHOW_CAMERA_TILE, showCameraTile)
+        showCameraButton = hasCamera && args.getBoolean(KEY_SHOW_CAMERA_BTN, showCameraButton)
         showStorageButton = args.getBoolean(KEY_SHOW_STORAGE_BTN, showStorageButton)
         storageMimetypes = args.getStringArray(KEY_STORAGE_MIMETYPES) ?: storageMimetypes
         columnSizeRes = args.getInt(KEY_COLUMN_SIZE_RES, columnSizeRes)
