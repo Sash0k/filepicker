@@ -3,5 +3,4 @@
     <string name="imagePickerSingle">Выберите изображение</string>
     <string name="imagePickerEmpty">Изображения не найдены</string>
     <string name="imagePickerLoading">Загрузка…</string>
-    <string name="toastImagePickerNoCameraPermission">Необходимо предоставить доступ к камере</string>
 </resources>

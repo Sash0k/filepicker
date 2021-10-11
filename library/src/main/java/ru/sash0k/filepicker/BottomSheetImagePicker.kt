@@ -1,6 +1,6 @@
 package ru.sash0k.filepicker
 
-import android.app.Activity.RESULT_OK
+import android.Manifest
 import android.app.Dialog
 import android.content.*
 import android.database.Cursor
@@ -13,8 +13,8 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.annotation.DimenRes
 import androidx.annotation.PluralsRes
@@ -107,9 +107,7 @@ class BottomSheetImagePicker internal constructor() :
 
         if (requireContext().hasReadStoragePermission) {
             LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this)
-        } else {
-            requestReadStoragePermission(REQUEST_PERMISSION_READ_STORAGE)
-        }
+        } else permissionStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
 
         val btnCamera = view.findViewById<ImageButton>(R.id.btnCamera)
         val btnStorage = view.findViewById<ImageButton>(R.id.btnStorage)
@@ -208,6 +206,15 @@ class BottomSheetImagePicker internal constructor() :
 //        btnClearSelection.animate().alpha(if (btnClearSelection.isEnabled) 1f else .2f)
     }
 
+    private val permissionStorage = registerForActivityResult(RequestPermission()) { success ->
+        if (success) LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this)
+        else dismissAllowingStateLoss()
+    }
+
+    private val permissionCamera = registerForActivityResult(RequestPermission()) { success ->
+        if (success) launchCamera()
+    }
+
     private val actionOpenDocuments = registerForActivityResult(OpenMultipleDocuments()) { uris ->
         onImagesSelectedListener?.onImagesSelected(uris, requestTag)
         dismissAllowingStateLoss()
@@ -230,7 +237,7 @@ class BottomSheetImagePicker internal constructor() :
 
     private fun launchCamera() {
         if (!requireContext().hasCameraPermission) {
-            requestCameraPermission(REQUEST_PERMISSION_CAMERA)
+            permissionCamera.launch(Manifest.permission.CAMERA)
             return
         }
 
@@ -240,29 +247,6 @@ class BottomSheetImagePicker internal constructor() :
                 actionTakePicture.launch(uri)
             }
         }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        when (requestCode) {
-            REQUEST_PERMISSION_READ_STORAGE ->
-                if (grantResults.isPermissionGranted)
-                    LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this)
-                else dismissAllowingStateLoss()
-            REQUEST_PERMISSION_CAMERA ->
-                if (grantResults.isPermissionGranted)
-                    launchCamera()
-                else
-                    Toast.makeText(
-                            requireContext(),
-                            R.string.toastImagePickerNoCameraPermission,
-                            Toast.LENGTH_LONG
-                    ).show()
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -333,11 +317,7 @@ class BottomSheetImagePicker internal constructor() :
 
     companion object {
         private const val TAG = "BottomSheetImagePicker"
-
         private const val LOADER_ID = 0x1337
-
-        private const val REQUEST_PERMISSION_READ_STORAGE = 0x2000
-        private const val REQUEST_PERMISSION_CAMERA = 0x2002
 
         private const val KEY_PROVIDER = "provider"
         private const val KEY_REQUEST_TAG = "requestTag"
