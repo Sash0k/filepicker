@@ -228,7 +228,7 @@ class BottomSheetImagePicker internal constructor() :
 
     private fun getTmpFileUri(): Uri {
         val context = requireContext()
-        val tmpFile = File.createTempFile("filepicker", ".png", context.cacheDir).apply {
+        val tmpFile = File.createTempFile("filepicker", ".jpg", context.cacheDir).apply {
             createNewFile()
             deleteOnExit()
         }
