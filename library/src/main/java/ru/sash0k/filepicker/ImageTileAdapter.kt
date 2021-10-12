@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 
 internal class ImageTileAdapter(
     private val isMultiSelect: Boolean,
@@ -107,6 +106,7 @@ sealed class VHImageTileBase(
 ) : RecyclerView.ViewHolder(view) {
 
     class VHImageTile(view: View) : VHImageTileBase(view) {
+        private val context = view.context
         private val ivImage = view.findViewById<ImageView>(R.id.ivImage)
         private val ivSelect = view.findViewById<View>(R.id.ivSelect)
 
@@ -123,7 +123,7 @@ sealed class VHImageTileBase(
         ) {
             this.clickListener = clickListener
             ivSelect.isVisible = selected
-            Glide.with(ivImage).load(uri).into(ivImage)
+            Configuration.imageLoader.loadImage(context, ivImage, uri)
         }
     }
 

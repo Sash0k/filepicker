@@ -43,7 +43,6 @@ class BottomSheetImagePicker internal constructor() :
     private var multiSelectMin = 1
     private var multiSelectMax = Int.MAX_VALUE
 
-    private var providerAuthority = ""
     private var requestTag = ""
 
     private var showCameraTile = false
@@ -233,7 +232,7 @@ class BottomSheetImagePicker internal constructor() :
             deleteOnExit()
         }
 
-        return FileProvider.getUriForFile(context, providerAuthority, tmpFile)
+        return FileProvider.getUriForFile(context, Configuration.authority, tmpFile)
     }
 
     private fun launchCamera() {
@@ -263,7 +262,6 @@ class BottomSheetImagePicker internal constructor() :
         //isMultiSelect = args.getBoolean(KEY_MULTI_SELECT, isMultiSelect)
         multiSelectMin = args.getInt(KEY_MULTI_SELECT_MIN, multiSelectMin)
         multiSelectMax = args.getInt(KEY_MULTI_SELECT_MAX, multiSelectMax)
-        providerAuthority = args.getString(KEY_PROVIDER, this::class.java.canonicalName)
         showCameraTile = hasCamera && args.getBoolean(KEY_SHOW_CAMERA_TILE, showCameraTile)
         showCameraButton = hasCamera && args.getBoolean(KEY_SHOW_CAMERA_BTN, showCameraButton)
         showStorageButton = args.getBoolean(KEY_SHOW_STORAGE_BTN, showStorageButton)
@@ -321,8 +319,6 @@ class BottomSheetImagePicker internal constructor() :
     companion object {
         private const val TAG = "BottomSheetImagePicker"
         private const val LOADER_ID = 0x1337
-
-        private const val KEY_PROVIDER = "provider"
         private const val KEY_REQUEST_TAG = "requestTag"
 
         private const val KEY_MULTI_SELECT = "multiSelect"
@@ -350,11 +346,8 @@ class BottomSheetImagePicker internal constructor() :
         private const val MAX_CURSOR_IMAGES = 512
     }
 
-    class Builder(provider: String) {
-
-        private val args = Bundle().apply {
-            putString(KEY_PROVIDER, provider)
-        }
+    class Builder() {
+        private val args = Bundle()
 
         fun requestTag(requestTag: String) = args.run {
             putString(KEY_REQUEST_TAG, requestTag)
