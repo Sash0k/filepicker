@@ -68,11 +68,16 @@ internal class ImageTileAdapter(
         if (position == 0) return
         val pos = getPosition(position)
 
-        clickListener.invoke(ClickedTile.ImageTile(imageList[pos]))
+        if (selection.size == 0) clickListener.invoke(ClickedTile.ImageTile(imageList[pos]))
+        else multiselect(selectView, pos)
     }
 
     private fun onLongTileClick(selectView: View, position: Int) {
         val pos = getPosition(position)
+        multiselect(selectView, pos)
+    }
+
+    private fun multiselect(selectView: View, pos: Int) {
         val checkBox = selectView as? CheckBox
         if (selection.contains(pos)) {
             checkBox?.isChecked = false
