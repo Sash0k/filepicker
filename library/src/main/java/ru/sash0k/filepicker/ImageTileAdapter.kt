@@ -58,30 +58,30 @@ internal class ImageTileAdapter(
         (holder as? VHImageTileBase.VHImageTile)?.update(
             imageList[pos],
             isMultiSelect,
-            selection.contains(position),
+            selection.contains(pos),
             ::onImageTileClick,
             ::onLongTileClick
         )
     }
 
-    private fun onLongTileClick(selectView: View, position: Int) {
-        val checkBox = selectView as? CheckBox
-        if (selection.contains(position)) {
-            checkBox?.isChecked = false
-            selection.remove(position)
-        } else {
-            checkBox?.isChecked = true
-            selection.add(position)
-        }
-        selectionCountChanged.invoke(selection.size)
-    }
-
     private fun onImageTileClick(selectView: View, position: Int) {
         if (position == 0) return
-
         val pos = getPosition(position)
+
         clickListener.invoke(ClickedTile.ImageTile(imageList[pos]))
-        return
+    }
+
+    private fun onLongTileClick(selectView: View, position: Int) {
+        val pos = getPosition(position)
+        val checkBox = selectView as? CheckBox
+        if (selection.contains(pos)) {
+            checkBox?.isChecked = false
+            selection.remove(pos)
+        } else {
+            checkBox?.isChecked = true
+            selection.add(pos)
+        }
+        selectionCountChanged.invoke(selection.size)
     }
 
     private fun getPosition(position: Int): Int = position - showCameraTile.toInt()
