@@ -37,6 +37,9 @@ class DemoFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedListener
     }
 
     override fun onImagesSelected(uris: List<Uri>, tag: String?) {
+        binding.firstImage.setImageResource(0)
+        binding.secondImage.setImageResource(0)
+
         uris.firstOrNull()?.let { load(it, binding.firstImage) }
         if (uris.size > 1) load(uris[1], binding.secondImage)
     }
