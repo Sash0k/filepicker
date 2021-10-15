@@ -4,6 +4,7 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageView
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
@@ -36,12 +37,8 @@ internal class ImageTileAdapter(
         selectionCountChanged(0)
     }
 
-    override fun getItemViewType(position: Int): Int = when {
-        isMultiSelect -> VT_IMAGE
-        position == 0 -> when {
-            showCameraTile -> VT_CAMERA
-            else -> VT_IMAGE
-        }
+    override fun getItemViewType(position: Int): Int = when (position) {
+        0 -> VT_CAMERA
         else -> VT_IMAGE
     }
 
@@ -54,38 +51,40 @@ internal class ImageTileAdapter(
             }
         }
 
-    override fun getItemCount(): Int =
-        if (isMultiSelect) imageList.size
-        else imageList.size + showCameraTile.toInt()
+    override fun getItemCount(): Int = imageList.size + showCameraTile.toInt()
 
     override fun onBindViewHolder(holder: VHImageTileBase, position: Int) {
-        val pos = getCorrectPosition(position)
+        val pos = getPosition(position)
         (holder as? VHImageTileBase.VHImageTile)?.update(
             imageList[pos],
+            isMultiSelect,
             selection.contains(position),
-            ::onImageTileClick
+            ::onImageTileClick,
+            ::onLongTileClick
         )
     }
 
-    private fun onImageTileClick(selectView: View, position: Int) {
-        if (!isMultiSelect) {
-            val pos = getCorrectPosition(position)
-            clickListener.invoke(ClickedTile.ImageTile(imageList[pos]))
-            return
-        }
+    private fun onLongTileClick(selectView: View, position: Int) {
+        val checkBox = selectView as? CheckBox
         if (selection.contains(position)) {
-            selectView.isVisible = false
+            checkBox?.isChecked = false
             selection.remove(position)
         } else {
-            selectView.isVisible = true
+            checkBox?.isChecked = true
             selection.add(position)
         }
         selectionCountChanged.invoke(selection.size)
     }
 
-    private fun getCorrectPosition(position: Int): Int =
-        if (isMultiSelect) position
-        else position - showCameraTile.toInt()
+    private fun onImageTileClick(selectView: View, position: Int) {
+        if (position == 0) return
+
+        val pos = getPosition(position)
+        clickListener.invoke(ClickedTile.ImageTile(imageList[pos]))
+        return
+    }
+
+    private fun getPosition(position: Int): Int = position - showCameraTile.toInt()
 
     private fun Boolean.toInt() = if (this) 1 else 0
 
@@ -111,19 +110,30 @@ sealed class VHImageTileBase(
         private val ivSelect = view.findViewById<View>(R.id.ivSelect)
 
         private var clickListener: ((selectView: View, position: Int) -> Unit)? = null
+        private var longClickListener: ((selectView: View, position: Int) -> Unit)? = null
 
         init {
             view.setOnClickListener { clickListener?.invoke(ivSelect, adapterPosition) }
+            view.setOnLongClickListener { longClickListener?.invoke(ivSelect, adapterPosition)
+                return@setOnLongClickListener true
+            }
         }
 
         fun update(
             uri: Uri,
+            multiselect: Boolean,
             selected: Boolean,
-            clickListener: (selectView: View, position: Int) -> Unit
+            clickListener: (selectView: View, position: Int) -> Unit,
+            longClickListener: (selectView: View, position: Int) -> Unit,
         ) {
             this.clickListener = clickListener
-            ivSelect.isVisible = selected
+            this.longClickListener = if (multiselect) longClickListener else null
+
             Configuration.imageLoader.loadImage(context, ivImage, uri)
+            (ivSelect as? CheckBox)?.apply {
+                isVisible = multiselect
+                isChecked = selected
+            }
         }
     }
 

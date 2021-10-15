@@ -39,7 +39,7 @@ class BottomSheetImagePicker internal constructor() :
 
     private var currentPhotoUri: Uri? = null
 
-    private val isMultiSelect = false
+    private val isMultiSelect = true
     private var multiSelectMin = 1
     private var multiSelectMax = Int.MAX_VALUE
 
@@ -112,7 +112,6 @@ class BottomSheetImagePicker internal constructor() :
         val btnCamera = view.findViewById<ImageButton>(R.id.btnCamera)
         val btnStorage = view.findViewById<ImageButton>(R.id.btnStorage)
         val btnDone = view.findViewById<ImageButton>(R.id.btnDone)
-        val btnClearSelection = view.findViewById<ImageButton>(R.id.btnClearSelection)
         val recycler = view.findViewById<RecyclerView>(R.id.recycler)
         val tvHeader = view.findViewById<TextView>(R.id.tvHeader)
 
@@ -135,14 +134,11 @@ class BottomSheetImagePicker internal constructor() :
         emptyView.setText(loadingRes)
 
         if (isMultiSelect) {
-            btnCamera.isVisible = false
             btnDone.isVisible = true
             btnDone.setOnClickListener {
                 onImagesSelectedListener?.onImagesSelected(adapter.getSelectedImages(), requestTag)
                 dismissAllowingStateLoss()
             }
-            btnClearSelection.isVisible = true
-            btnClearSelection.setOnClickListener { adapter.clear() }
         }
 
         recycler.layoutManager = AutofitLayoutManager(requireContext(), columnSizeRes)

@@ -35,18 +35,12 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
         <ImageButton
-            android:id="@+id/btnClearSelection"
-            android:layout_width="?android:attr/listPreferredItemHeightSmall"
-            android:layout_height="match_parent"
-            android:background="?selectableItemBackgroundBorderless"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
-        <ImageButton
             android:id="@+id/btnDone"
             android:layout_width="?android:attr/listPreferredItemHeightSmall"
             android:layout_height="match_parent"
             android:background="?selectableItemBackgroundBorderless"
+            android:tint="#cccccc"
+            android:src="@drawable/ic_baseline_checked_24"
             android:visibility="gone"
             tools:visibility="visible" />
 
