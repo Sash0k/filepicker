@@ -13,7 +13,7 @@
         android:layout_margin="8dp"
         app:cardCornerRadius="3dp"
         app:cardElevation="0dp"
-        app:cardBackgroundColor="#cccccc" />
+        app:cardBackgroundColor="@color/imagePickerImageTint" />
 
     <LinearLayout
         android:id="@+id/headerContainer"
@@ -72,7 +72,7 @@
             android:gravity="center"
             android:background="?selectableItemBackgroundBorderless"
             android:text="@string/imagePickerUpload"
-            android:textColor="@android:color/holo_blue_bright"
+            android:textColor="@color/imagePickerSelection"
             android:textAllCaps="true"
             android:visibility="gone"
             tools:visibility="visible" />

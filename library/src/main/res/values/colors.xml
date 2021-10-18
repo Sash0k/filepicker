@@ -2,4 +2,6 @@
 <resources>
     <color name="imagePickerTileBackground">#aaa</color>
     <color name="imagePickerCameraTileBackground">#171219</color>
+    <color name="imagePickerImageTint">#cccccc</color>
+    <color name="imagePickerSelection">@android:color/holo_blue_bright</color>
 </resources>
