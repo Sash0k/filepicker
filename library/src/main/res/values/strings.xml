@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="imagePickerSingle">Выберите изображение</string>
-    <string name="imagePickerEmpty">Изображения не найдены</string>
-    <string name="imagePickerLoading">Загрузка…</string>
-    <string name="imagePickerUpload">Загрузить</string>
-    <string name="imagePickerSelected">Выбрано: %1$d</string>
+    <string name="imagePickerSingle">Select an image</string>
+    <string name="imagePickerMulti">Selected: %1$d</string>
+    <string name="imagePickerEmpty">Images not found</string>
+    <string name="imagePickerLoading">Loading…</string>
+    <string name="imagePickerUpload">Upload</string>
 </resources>
