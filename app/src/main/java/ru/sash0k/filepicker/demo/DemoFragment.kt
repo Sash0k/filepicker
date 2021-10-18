@@ -31,6 +31,7 @@ class DemoFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedListener
             .cameraButton(enabled = true)
             .storageButton(mimeTypes = arrayOf("image/*", "application/pdf", "text/plain"))
             .singleSelectTitle(R.string.imagePickerSingle)
+            .multiSelect()
             .peekHeight(R.dimen.peekHeight)
             .requestTag(tag)
             .show(childFragmentManager)
