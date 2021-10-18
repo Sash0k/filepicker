@@ -22,6 +22,16 @@
         android:layout_gravity="bottom"
         app:elevation="3dp">
 
+        <ImageButton
+            android:id="@+id/btnClear"
+            android:layout_width="?android:attr/listPreferredItemHeightSmall"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_baseline_close_24"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
         <TextView
             android:id="@+id/tvHeader"
             android:layout_width="0dp"
@@ -33,16 +43,6 @@
             android:paddingEnd="0dp"
             android:text="@string/imagePickerSingle"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
-
-        <ImageButton
-            android:id="@+id/btnDone"
-            android:layout_width="?android:attr/listPreferredItemHeightSmall"
-            android:layout_height="match_parent"
-            android:background="?selectableItemBackgroundBorderless"
-            android:tint="#cccccc"
-            android:src="@drawable/ic_baseline_checked_24"
-            android:visibility="gone"
-            tools:visibility="visible" />
 
         <ImageButton
             android:id="@+id/btnCamera"
@@ -63,6 +63,19 @@
             android:src="@drawable/ic_baseline_folder_24"
             android:visibility="gone"
             tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/btnDone"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="16dp"
+            android:gravity="center"
+            android:background="?selectableItemBackgroundBorderless"
+            android:text="@string/imagePickerUpload"
+            android:textColor="@android:color/holo_blue_bright"
+            android:textAllCaps="true"
+            android:visibility="gone"
+            tools:visibility="visible" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -75,6 +88,8 @@
         android:paddingEnd="@dimen/imagePickerTileSpacing"
         android:paddingBottom="@dimen/imagePickerTileSpacing"
         android:scrollbarStyle="outsideOverlay"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        tools:spanCount="3"
         tools:listitem="@layout/tile_image" />
 
     <FrameLayout

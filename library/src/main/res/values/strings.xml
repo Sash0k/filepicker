@@ -3,4 +3,6 @@
     <string name="imagePickerSingle">Выберите изображение</string>
     <string name="imagePickerEmpty">Изображения не найдены</string>
     <string name="imagePickerLoading">Загрузка…</string>
+    <string name="imagePickerUpload">Загрузить</string>
+    <string name="imagePickerSelected">Выбрано: %1$d</string>
 </resources>

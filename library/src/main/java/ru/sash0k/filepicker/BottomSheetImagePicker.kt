@@ -66,6 +66,12 @@ class BottomSheetImagePicker internal constructor() :
     private lateinit var progressbar: ProgressBar
     private lateinit var emptyView: TextView
 
+    private lateinit var tvHeader: TextView
+    private lateinit var btnDone: TextView
+    private lateinit var btnClear: ImageButton
+    private lateinit var btnCamera: ImageButton
+    private lateinit var btnStorage: ImageButton
+
     private val adapter by lazy {
         ImageTileAdapter(
             isMultiSelect,
@@ -104,16 +110,17 @@ class BottomSheetImagePicker internal constructor() :
 
         progressbar = view.findViewById(R.id.progress)
         emptyView = view.findViewById(R.id.tvEmpty)
+        btnClear = view.findViewById(R.id.btnClear)
+        btnDone = view.findViewById(R.id.btnDone)
+        tvHeader = view.findViewById(R.id.tvHeader)
+        btnCamera = view.findViewById(R.id.btnCamera)
+        btnStorage = view.findViewById(R.id.btnStorage)
+
+        val recycler = view.findViewById<RecyclerView>(R.id.recycler)
 
         if (requireContext().hasReadStoragePermission) {
             LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this)
         } else permissionStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-
-        val btnCamera = view.findViewById<ImageButton>(R.id.btnCamera)
-        val btnStorage = view.findViewById<ImageButton>(R.id.btnStorage)
-        val btnDone = view.findViewById<ImageButton>(R.id.btnDone)
-        val recycler = view.findViewById<RecyclerView>(R.id.recycler)
-        val tvHeader = view.findViewById<TextView>(R.id.tvHeader)
 
         tvHeader.setOnClickListener {
             if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
@@ -122,23 +129,17 @@ class BottomSheetImagePicker internal constructor() :
                 recycler.smoothScrollToPosition(0)
             }
         }
-        if (showStorageButton) {
-            btnStorage.isVisible = true
-            btnStorage.setOnClickListener { actionOpenDocuments.launch(storageMimetypes) }
-        }
-        if (showCameraButton) {
-            btnCamera.isVisible = true
-            btnCamera.setOnClickListener { launchCamera() }
-        }
-        tvHeader.setText(resTitleSingle)
-        emptyView.setText(loadingRes)
 
-        if (isMultiSelect) {
-            btnDone.isVisible = true
-            btnDone.setOnClickListener {
-                onImagesSelectedListener?.onImagesSelected(adapter.getSelectedImages(), requestTag)
-                dismissAllowingStateLoss()
-            }
+        emptyView.setText(loadingRes)
+        btnCamera.setOnClickListener { launchCamera() }
+        btnStorage.setOnClickListener { actionOpenDocuments.launch(storageMimetypes) }
+        btnClear.setOnClickListener {
+            adapter.clear()
+            selectionCountChanged(adapter.selection.size)
+        }
+        btnDone.setOnClickListener {
+            onImagesSelectedListener?.onImagesSelected(adapter.getSelectedImages(), requestTag)
+            dismissAllowingStateLoss()
         }
 
         recycler.layoutManager = AutofitLayoutManager(requireContext(), columnSizeRes)
@@ -187,19 +188,21 @@ class BottomSheetImagePicker internal constructor() :
     }
 
     private fun selectionCountChanged(count: Int) {
-        if (!isMultiSelect) return
-//        when {
-//            count < multiSelectMin -> {
-//                val delta = multiSelectMin - count
-//                tvHeader.text = resources.getQuantityString(resTitleMultiMore, delta, delta)
-//            }
-//            count > multiSelectMax -> tvHeader.text = getString(resTitleMultiLimit, multiSelectMax)
-//            else -> tvHeader.text = resources.getQuantityString(resTitleMulti, count, count)
-//        }
-//        btnDone.isEnabled = count in multiSelectMin..multiSelectMax
-//        btnDone.animate().alpha(if (btnDone.isEnabled) 1f else .2f)
-//        btnClearSelection.isEnabled = count > 0
-//        btnClearSelection.animate().alpha(if (btnClearSelection.isEnabled) 1f else .2f)
+        if (count == 0) {
+            btnStorage.isVisible = showStorageButton
+            btnCamera.isVisible = showCameraButton
+
+            tvHeader.setText(resTitleSingle)
+            btnDone.isVisible = false
+            btnClear.isVisible = false
+        } else {
+            btnStorage.isVisible = false
+            btnCamera.isVisible = false
+
+            tvHeader.text = getString(R.string.imagePickerSelected, count)
+            btnDone.isVisible = true
+            btnClear.isVisible = true
+        }
     }
 
     private val permissionStorage = registerForActivityResult(RequestPermission()) { success ->
