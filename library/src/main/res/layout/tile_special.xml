@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/imagePickerTileSpacing"
     android:layout_marginTop="@dimen/imagePickerTileSpacing"
-    android:background="@color/bottomSheetTileBackground"
+    android:background="@color/imagePickerCameraTileBackground"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
