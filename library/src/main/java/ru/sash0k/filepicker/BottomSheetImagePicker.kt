@@ -18,7 +18,6 @@ import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDoc
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.annotation.DimenRes
-import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
@@ -39,7 +38,7 @@ class BottomSheetImagePicker internal constructor() :
 
     private var currentPhotoUri: Uri? = null
 
-    private val isMultiSelect = true
+    private var isMultiSelect = false
     private var multiSelectMin = 1
     private var multiSelectMax = Int.MAX_VALUE
 
@@ -50,16 +49,13 @@ class BottomSheetImagePicker internal constructor() :
     private var showStorageButton = false
     private var storageMimetypes = emptyArray<String>()
 
-    @StringRes
-    private var resTitleSingle = R.string.imagePickerSingle
-    @DimenRes
-    private var peekHeight = R.dimen.imagePickerPeekHeight
-    @DimenRes
-    private var columnSizeRes = R.dimen.imagePickerColumnSize
-    @StringRes
-    private var loadingRes = R.string.imagePickerLoading
-    @StringRes
-    private var emptyRes = R.string.imagePickerEmpty
+    @StringRes private var resTitleSingle = R.string.imagePickerSingle
+    @StringRes private var resTitleMulti = R.string.imagePickerMulti
+    @StringRes private var loadingRes = R.string.imagePickerLoading
+    @StringRes private var emptyRes = R.string.imagePickerEmpty
+
+    @DimenRes private var peekHeight = R.dimen.imagePickerPeekHeight
+    @DimenRes private var columnSizeRes = R.dimen.imagePickerColumnSize
 
     private var onImagesSelectedListener: OnImagesSelectedListener? = null
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
@@ -199,7 +195,7 @@ class BottomSheetImagePicker internal constructor() :
             btnStorage.isVisible = false
             btnCamera.isVisible = false
 
-            tvHeader.text = getString(R.string.imagePickerSelected, count)
+            tvHeader.text = getString(resTitleMulti, count)
             btnDone.isVisible = true
             btnClear.isVisible = true
         }
@@ -258,7 +254,7 @@ class BottomSheetImagePicker internal constructor() :
         val args = arguments ?: return
         val hasCamera = activity?.packageManager?.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY) ?: false
 
-        //isMultiSelect = args.getBoolean(KEY_MULTI_SELECT, isMultiSelect)
+        isMultiSelect = args.getBoolean(KEY_MULTI_SELECT, isMultiSelect)
         multiSelectMin = args.getInt(KEY_MULTI_SELECT_MIN, multiSelectMin)
         multiSelectMax = args.getInt(KEY_MULTI_SELECT_MAX, multiSelectMax)
         showCameraTile = hasCamera && args.getBoolean(KEY_SHOW_CAMERA_TILE, showCameraTile)
@@ -269,9 +265,7 @@ class BottomSheetImagePicker internal constructor() :
         requestTag = args.getString(KEY_REQUEST_TAG, requestTag)
 
         resTitleSingle = args.getInt(KEY_TITLE_RES_SINGLE, resTitleSingle)
-        //resTitleMulti = args.getInt(KEY_TITLE_RES_MULTI, resTitleMulti)
-        //resTitleMultiMore = args.getInt(KEY_TITLE_RES_MULTI_MORE, resTitleMultiMore)
-        //resTitleMultiLimit = args.getInt(KEY_TITLE_RES_MULTI_LIMIT, resTitleMultiLimit)
+        resTitleMulti = args.getInt(KEY_TITLE_RES_MULTI, resTitleMulti)
 
         peekHeight = args.getInt(KEY_PEEK_HEIGHT, peekHeight)
 
@@ -331,9 +325,6 @@ class BottomSheetImagePicker internal constructor() :
 
         private const val KEY_TITLE_RES_SINGLE = "titleResSingle"
         private const val KEY_TITLE_RES_MULTI = "titleResMulti"
-        private const val KEY_TITLE_RES_MULTI_MORE = "titleResMultiMore"
-        private const val KEY_TITLE_RES_MULTI_LIMIT = "titleResMultiLimit"
-
         private const val KEY_TEXT_EMPTY = "emptyText"
         private const val KEY_TEXT_LOADING = "loadingText"
 
@@ -345,7 +336,7 @@ class BottomSheetImagePicker internal constructor() :
         private const val MAX_CURSOR_IMAGES = 512
     }
 
-    class Builder() {
+    class Builder {
         private val args = Bundle()
 
         fun requestTag(requestTag: String) = args.run {
@@ -401,20 +392,13 @@ class BottomSheetImagePicker internal constructor() :
             this@Builder
         }
 
-        fun multiSelectTitles(
-            @PluralsRes titleCount: Int,
-            @PluralsRes titleNeedMore: Int,
-            @StringRes titleLimit: Int
-        ) = args.run {
+        fun multiSelectTitles(@StringRes titleCount: Int) = args.run {
             putInt(KEY_TITLE_RES_MULTI, titleCount)
-            putInt(KEY_TITLE_RES_MULTI_MORE, titleNeedMore)
-            putInt(KEY_TITLE_RES_MULTI_LIMIT, titleLimit)
             this@Builder
         }
 
-        fun build() = BottomSheetImagePicker().apply { arguments = args }
-
-        fun show(fm: FragmentManager, tag: String? = null) = build().show(fm, tag)
-
+        fun show(fm: FragmentManager, tag: String? = null) = BottomSheetImagePicker()
+            .apply { arguments = args }
+            .show(fm, tag)
     }
 }

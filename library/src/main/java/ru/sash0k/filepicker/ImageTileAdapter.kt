@@ -95,7 +95,6 @@ internal class ImageTileAdapter(
 
     companion object {
         private const val VT_CAMERA = 0x1000
-        private const val VT_GALLERY = 0x1001
         private const val VT_IMAGE = 0x1002
     }
 }
