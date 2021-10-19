@@ -28,16 +28,17 @@ class DemoFragment : Fragment(), BottomSheetImagePicker.OnImagesSelectedListener
 
     private fun pickFile(tag: String) {
         BottomSheetImagePicker.Builder()
-            .cameraButton(enabled = true)
-            .storageButton(mimeTypes = arrayOf("image/*", "application/pdf", "text/plain"))
-            .singleSelectTitle(R.string.imagePickerSingle)
-            .multiSelect()
-            .peekHeight(R.dimen.peekHeight)
             .requestTag(tag)
-            .show(childFragmentManager)
+            .multiSelect()                                                      // enables multiselect mode
+            .cameraButton(enabled = true)                                       // enables camera
+            .storageButton(mimeTypes = arrayOf("image/*", "application/pdf"))   // enables SAF for mimeTypes
+            .singleSelectTitle(R.string.singleText)
+            .peekHeight(R.dimen.peekHeight)
+            .show(childFragmentManager)                                         // inside activity use supportFragmentManager
     }
 
     override fun onImagesSelected(uris: List<Uri>, tag: String?) {
+
         binding.firstImage.setImageResource(0)
         binding.secondImage.setImageResource(0)
 
