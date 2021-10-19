@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="imagePickerTileBackground">#aaa</color>
+
     <color name="imagePickerCameraTileBackground">#171219</color>
-    <color name="imagePickerImageTint">#cccccc</color>
+    <color name="imagePickerTint">#cccccc</color>
+    <color name="imagePickerTintSecondary">#979797</color>
     <color name="imagePickerSelection">@android:color/holo_blue_bright</color>
 </resources>

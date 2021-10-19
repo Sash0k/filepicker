@@ -13,7 +13,7 @@
         android:layout_margin="8dp"
         app:cardCornerRadius="3dp"
         app:cardElevation="0dp"
-        app:cardBackgroundColor="@color/imagePickerImageTint" />
+        app:cardBackgroundColor="@color/imagePickerTint" />
 
     <LinearLayout
         android:id="@+id/headerContainer"
