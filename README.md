@@ -34,16 +34,12 @@ FilePicker.init(
 ### Step 3: Create the picker using the Builder
 The setters are all **optional** and the builder will fallback to default values.
 ``` kotlin
-    private fun pickFile(tag: String) {
-        BottomSheetImagePicker.Builder()
-            .requestTag(tag)
-            .multiSelect()                                                      // enables multiselect mode
-            .cameraButton(enabled = true)                                       // enables camera
-            .storageButton(mimeTypes = arrayOf("image/*", "application/pdf"))   // enables SAF for mimeTypes
-            .singleSelectTitle(R.string.singleText)
-            .peekHeight(R.dimen.peekHeight)
-            .show(childFragmentManager)                                         // inside activity use supportFragmentManager
-    }
+BottomSheetImagePicker.Builder()
+    .requestTag(tag)
+    .multiSelect()                                                      // enables multiselect mode
+    .cameraButton(enabled = true)                                       // enables camera
+    .storageButton(mimeTypes = arrayOf("image/*", "application/pdf"))   // enables SAF for mimeTypes
+    .show(childFragmentManager)                                         // inside activity use supportFragmentManager
 ```
 
 ### Step 4: Implement the callback handler
